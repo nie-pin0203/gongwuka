@@ -1,8 +1,9 @@
 'use strict';
-const CACHE = 'official-card-shell-v2-' + self.registration.scope;
+const CACHE = 'official-card-shell-v4-' + self.registration.scope;
 const ASSETS = ['./index.html', './style.css', './app.js', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
+  const requests = ASSETS.map(path => new Request(new URL(path, self.registration.scope), {cache:'reload'}));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(requests)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('official-card-shell-') && key.endsWith('-' + self.registration.scope) && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
